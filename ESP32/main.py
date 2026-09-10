@@ -3,6 +3,14 @@ import network
 import socket
 import time
 
+try:
+    import config
+except ImportError:
+    raise SystemExit(
+        "缺少 config.py：请复制 config.example.py 为 config.py，填好 WiFi 信息后重新上传"
+    )
+
+
 def send_response(message, target_ip, target_port):
     """发送回复到指定 IP 和端口"""
     try:
@@ -13,39 +21,41 @@ def send_response(message, target_ip, target_port):
     except Exception as e:
         print(f"回复失败: {e}")
         
-def do_connect(): #定义函数 链接WIFI LYH
+def do_connect():  # 连接 WiFi 并设置静态 IP
     wlan = network.WLAN()
     wlan.active(True)
     if not wlan.isconnected():
-        print('connecting to LYH...')
-        wlan.connect("YOUR_WIFI_SSID", "YOUR_WIFI_PASSWORD")
+        print("connecting to {}...".format(config.WIFI_SSID))
+        wlan.connect(config.WIFI_SSID, config.WIFI_PASSWORD)
         timeout = 15
         while not wlan.isconnected() and timeout > 0:
             time.sleep(0.5)  # ✅ 用 time.sleep() 代替 machine.idle()
             print(".", end="")
-            timeout -=0.5
+            timeout -= 0.5
     if wlan.isconnected():
-        print('原有network config:', wlan.ifconfig())
-        STATIC_CONFIG = ('192.168.43.128',   # 你的固定IP
-                     '255.255.255.0',    # 子网掩码
-                     '192.168.43.1',     # 网关
-                     '192.168.43.1')     # DNS = 网关 ✅    #定义函数 创建调节子
+        print("原有 network config:", wlan.ifconfig())
+        STATIC_CONFIG = (
+            config.STATIC_IP,     # 固定 IP
+            config.SUBNET_MASK,   # 子网掩码
+            config.GATEWAY,       # 网关
+            config.DNS,           # DNS = 网关 ✅
+        )
         wlan.ifconfig(STATIC_CONFIG)
         print("固定IP已设置:", wlan.ifconfig())
-    
+
     return wlan
 
 def creat_udp_socket():
     udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    udp_socket.bind(("0.0.0.0", 7788))
-    print("UDP socket 已创建，实际监听端口:7788")
+    udp_socket.bind(("0.0.0.0", config.UDP_PORT))
+    print("UDP socket 已创建，实际监听端口:{}".format(config.UDP_PORT))
     return udp_socket
 
 def main():
     wlan = do_connect()
     
     if not wlan.isconnected():
-        print("无法连接WiFi，,程序退出，请检查LYH WiFi设置")
+        print("无法连接 WiFi，程序退出，请检查 config.py 中的热点名称与密码")
         return
     
     udp_socket = creat_udp_socket()

@@ -24,7 +24,7 @@ description: 控制局域网内 ESP32 开发板上的 LED 灯。支持开灯、�
 
 确保 ESP32 上已经烧录了对应的接收端代码，并且：
 
-- WiFi 已连接到热点 `LYH`
+- 已按 `ESP32/config.example.py` 建好 `config.py`，WiFi 热点与密码配置正确
 - UDP 服务正在端口 `7788` 上监听
 - LED 连接在 GPIO 2 引脚
 
@@ -88,7 +88,7 @@ AI 会理解这些意图并自动调用对应的命令。
 
 ### 连接失败
 
-1. 确保手机热点 `LYH` 已开启
+1. 确保 `config.py` 中的热点名称正确，且该热点已开启
 2. 检查 WiFi 密码是否正确
 3. 尝试重启 ESP32
 
@@ -105,3 +105,4 @@ esp32-light/
 - 本技能依赖 Python 3.x 环境
 - 需要 `socket` 模块（Python 标准库，无需额外安装）
 - ESP32 的 IP 地址是硬编码的，如需修改请编辑 `led_control.py`
+- ESP32 端的 WiFi 凭据存放在 `ESP32/config.py`（不进仓库），模板见 `ESP32/config.example.py`

@@ -73,10 +73,13 @@ sequenceDiagram
 
 ### 2. 烧录 ESP32 端
 
-把 `ESP32/main.py` 烧录到开发板，并按自己的环境修改两处：
+凭据不进仓库，由同目录的 `config.py` 提供：
 
-- WiFi 热点名与密码（`wlan.connect(...)`）
-- 静态 IP 配置（`STATIC_CONFIG`，默认 `192.168.43.128`，网关与 DNS 为 `192.168.43.1`）
+1. 复制 `ESP32/config.example.py` 为 `ESP32/config.py`
+2. 在 `config.py` 中填入你的 WiFi 热点名、密码与静态 IP（默认 `192.168.43.128`，网关与 DNS 为 `192.168.43.1`）
+3. 把 `ESP32/main.py` 与 `ESP32/config.py` **一起**上传到开发板
+
+`config.py` 已被 `.gitignore` 忽略，凭据不会进入版本库。
 
 ### 3. 准备主机端
 
@@ -153,10 +156,12 @@ Agent 会理解这些意图并自动调用对应命令。
 ```text
 ESP32Claw/
 ├── ESP32/
-│   └── main.py            # ESP32 端固件（MicroPython）：连 WiFi、监听 UDP、驱动 GPIO
+│   ├── main.py            # ESP32 端固件（MicroPython）：连 WiFi、监听 UDP、驱动 GPIO
+│   └── config.example.py  # 网络配置模板（复制为 config.py 并填入自己的凭据）
 ├── esp32-light/
 │   ├── SKILL.md           # 技能定义：触发场景、命令映射、故障排除
 │   └── led_control.py     # 主机端脚本：把命令意图转成 UDP 报文并读取回执
+├── .gitignore             # 忽略 ESP32/config.py 与 Python 产物
 ├── LICENSE
 └── README.md
 ```
@@ -164,8 +169,7 @@ ESP32Claw/
 ## 已知限制
 
 - 目前仅覆盖**单个 LED（GPIO 2）**，是打通链路的最小实现
-- ESP32 的 IP 为硬编码，更换网络环境需同时修改固件与 `led_control.py`
-- WiFi 凭据与静态 IP 写在固件源码中，正式部署建议做配置分离
+- `led_control.py` 中的 `ESP32_IP` 仍是硬编码，换网络环境需与 `config.py` 一起改
 - UDP 为不可靠传输，状态一致性依赖上层的返回与超时机制来保证
 
 ## License
